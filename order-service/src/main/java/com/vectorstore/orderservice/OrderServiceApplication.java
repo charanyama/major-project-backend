@@ -1,4 +1,4 @@
-package com.vectorstore.order_service;
+package com.vectorstore.orderservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
