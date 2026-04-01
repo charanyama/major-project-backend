@@ -1,0 +1,6 @@
+spring:
+    application:
+        name: indexing-service
+    
+external:
+    product-api: http://localhost:8080/products
