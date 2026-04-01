@@ -1,4 +1,4 @@
-package com.virutualstore.productservice.dto;
+package com.virtualstore.productservice.dto;
 
 import java.math.BigDecimal;
 import lombok.Data;

@@ -1,4 +1,4 @@
-package com.virutualstore.productservice.controller;
+package com.virtualstore.productservice.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -7,11 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import com.virutualstore.productservice.dto.ProductDto;
-import com.virutualstore.productservice.dto.ProductRequest;
-import com.virutualstore.productservice.mapper.ProductMapper;
-import com.virutualstore.productservice.model.Product;
-import com.virutualstore.productservice.service.ProductService;
+import com.virtualstore.productservice.dto.ProductDto;
+import com.virtualstore.productservice.dto.ProductRequest;
+import com.virtualstore.productservice.mapper.ProductMapper;
+import com.virtualstore.productservice.model.Product;
+import com.virtualstore.productservice.service.ProductService;
 
 import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;

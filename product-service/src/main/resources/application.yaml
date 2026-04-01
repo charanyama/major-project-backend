@@ -17,6 +17,6 @@
 # logging:
 #   level:
 #     org.springframework: INFO
-#     com.virutualstore: DEBUG
+#     com.virtualstore: DEBUG
 #     org.springframework.data.mongodb.core.MongoTemplate: DEBUG
 

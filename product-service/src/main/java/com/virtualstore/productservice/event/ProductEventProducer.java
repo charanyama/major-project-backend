@@ -1,4 +1,4 @@
-package com.virutualstore.productservice.event;
+package com.virtualstore.productservice.event;
 
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;

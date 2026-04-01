@@ -1,4 +1,4 @@
-package com.virutualstore.productservice.dto;
+package com.virtualstore.productservice.dto;
 import java.time.Instant;
 
 import org.springframework.http.HttpStatus;

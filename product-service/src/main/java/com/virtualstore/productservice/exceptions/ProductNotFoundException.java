@@ -1,4 +1,4 @@
-package com.virutualstore.productservice.exceptions;
+package com.virtualstore.productservice.exceptions;
 
 public class ProductNotFoundException extends RuntimeException {
     private final String prod_id;
