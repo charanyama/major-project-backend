@@ -1,11 +1,11 @@
-package com.virutualstore.productservice.exceptions;
+package com.virtualstore.productservice.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.virutualstore.productservice.dto.ErrorResponse;
+import com.virtualstore.productservice.dto.ErrorResponse;
 
 import service.collector.exception.ProductNotFoundException;
 

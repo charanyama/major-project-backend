@@ -1,8 +1,8 @@
-package com.virutualstore.productservice.mapper;
+package com.virtualstore.productservice.mapper;
 
-import com.virutualstore.productservice.dto.ProductDto;
-import com.virutualstore.productservice.dto.ProductRequest;
-import com.virutualstore.productservice.model.Product;
+import com.virtualstore.productservice.dto.ProductDto;
+import com.virtualstore.productservice.dto.ProductRequest;
+import com.virtualstore.productservice.model.Product;
 
 import java.util.List;
 import java.util.stream.Collectors;

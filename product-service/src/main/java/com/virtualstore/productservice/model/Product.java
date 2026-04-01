@@ -1,7 +1,10 @@
-package com.virutualstore.productservice.model;
+package com.virtualstore.productservice.model;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
@@ -15,6 +18,7 @@ import java.time.Instant;
 public class Product {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String id;
 
     @NotBlank(message = "Product name is required")
