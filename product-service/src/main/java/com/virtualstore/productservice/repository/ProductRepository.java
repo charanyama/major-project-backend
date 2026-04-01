@@ -1,11 +1,11 @@
-package com.virutualstore.productservice.repository;
+package com.virtualstore.productservice.repository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
-import com.virutualstore.productservice.model.Product;
+import com.virtualstore.productservice.model.Product;
 
 @Repository
 public interface ProductRepository extends MongoRepository<Product, String> {

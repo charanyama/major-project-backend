@@ -1,6 +1,6 @@
-package com.virutualstore.productservice.event;
+package com.virtualstore.productservice.event;
 
-import com.virutualstore.productservice.dto.ProductDto;
+import com.virtualstore.productservice.dto.ProductDto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
