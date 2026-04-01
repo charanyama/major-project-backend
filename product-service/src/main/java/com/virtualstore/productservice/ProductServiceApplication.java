@@ -1,4 +1,4 @@
-package com.virutualstore.productservice;
+package com.virtualstore.productservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

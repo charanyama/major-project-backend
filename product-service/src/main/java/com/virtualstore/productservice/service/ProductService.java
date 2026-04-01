@@ -1,12 +1,12 @@
-package com.virutualstore.productservice.service;
+package com.virtualstore.productservice.service;
 
-import com.virutualstore.productservice.dto.ProductDto;
-import com.virutualstore.productservice.event.ProductEvent;
-import com.virutualstore.productservice.event.ProductEventProducer;
-import com.virutualstore.productservice.exceptions.ProductNotFoundException;
-import com.virutualstore.productservice.mapper.ProductMapper;
-import com.virutualstore.productservice.model.Product;
-import com.virutualstore.productservice.repository.ProductRepository;
+import com.virtualstore.productservice.dto.ProductDto;
+import com.virtualstore.productservice.event.ProductEvent;
+import com.virtualstore.productservice.event.ProductEventProducer;
+import com.virtualstore.productservice.exceptions.ProductNotFoundException;
+import com.virtualstore.productservice.mapper.ProductMapper;
+import com.virtualstore.productservice.model.Product;
+import com.virtualstore.productservice.repository.ProductRepository;
 
 import lombok.RequiredArgsConstructor;
 

@@ -1,4 +1,4 @@
-package com.virutualstore.productservice.config;
+package com.virtualstore.productservice.config;
 
 import org.springframework.context.annotation.Configuration;
 
