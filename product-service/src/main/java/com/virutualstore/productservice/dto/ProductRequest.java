@@ -1,5 +1,7 @@
 package com.virutualstore.productservice.dto;
 
+import java.math.BigDecimal;
+
 import lombok.Data;
 
 @Data
@@ -9,7 +11,9 @@ public class ProductRequest {
     private String category;
     private String subcategory;
     private String categoryTree;
-    private String price;
+    private BigDecimal price;
+    private String imgUrl;
+    private String owner;
     private String brand;
-    private String rating;
+    private Double rating;
 }
