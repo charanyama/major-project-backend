@@ -1,16 +1,22 @@
-spring:
-  application:
-    name: productservice
+# spring:
+#   application:
+#     name: productservice
 
-  mongodb:
-    uri: mongodb+srv://admin:pass1234@ecommerce-cluster-0.el6cazo.mongodb.net/store
-eureka:
-  client:
-    enabled: false
+#   mongodb:
+#     uri: mongodb+srv://admin:pass1234@ecommerce-cluster-0.el6cazo.mongodb.net/store
+  
+#   kafka:
+#     bootstrap-servers: localhost:9092
+#     producer:
+#       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+#       key-serializer: org.apache.kafka.common.serialization.StringSerializer
+# eureka:
+#   client:
+#     enabled: false
 
-logging:
-  level:
-    org.springframework: INFO
-    com.virutualstore: DEBUG
-    org.springframework.data.mongodb.core.MongoTemplate: DEBUG
+# logging:
+#   level:
+#     org.springframework: INFO
+#     com.virutualstore: DEBUG
+#     org.springframework.data.mongodb.core.MongoTemplate: DEBUG
 

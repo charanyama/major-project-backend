@@ -1,6 +1,10 @@
 package com.virutualstore.productservice.service;
 
+import com.virutualstore.productservice.dto.ProductDto;
+import com.virutualstore.productservice.event.ProductEvent;
+import com.virutualstore.productservice.event.ProductEventProducer;
 import com.virutualstore.productservice.exceptions.ProductNotFoundException;
+import com.virutualstore.productservice.mapper.ProductMapper;
 import com.virutualstore.productservice.model.Product;
 import com.virutualstore.productservice.repository.ProductRepository;
 
@@ -19,6 +23,9 @@ public class ProductService {
     @Autowired
     private ProductRepository repository;
 
+    @Autowired
+    private ProductEventProducer producer;
+
     public List<Product> findAll() {
         return repository.findAll();
     }
@@ -30,7 +37,12 @@ public class ProductService {
 
     public Product createProduct(Product product) {
         product.setCreatedAtIfNull();
-        return repository.save(product);
+
+        Product saved = repository.save(product);
+        ProductDto dto = ProductMapper.toDto(saved);
+        producer.publish(new ProductEvent("CREATE", dto));
+
+        return saved;
     }
 
     public Product patch(String id, Product updatedProduct) {
@@ -45,6 +57,8 @@ public class ProductService {
         Optional.ofNullable(updatedProduct.getRating()).ifPresent(existing::setRating);
         Optional.ofNullable(updatedProduct.getDescription()).ifPresent(existing::setDescription);
         Optional.ofNullable(updatedProduct.getOwner()).ifPresent(existing::setOwner);
+
+        producer.publish(new ProductEvent("UPDATE", ProductMapper.toDto(existing)));
 
         return repository.save(existing);
     }
@@ -61,6 +75,8 @@ public class ProductService {
         existing.setRating(updatedProduct.getRating());
         existing.setDescription(updatedProduct.getDescription());
         existing.setOwner(updatedProduct.getOwner());
+
+        producer.publish(new ProductEvent("UPDATE", ProductMapper.toDto(existing)));
 
         return repository.save(existing);
     }
@@ -96,6 +112,9 @@ public class ProductService {
 
     public void delete(String id) {
         Product existing = findById(id);
+
+        producer.publish(new ProductEvent("DELETE", ProductMapper.toDto(existing)));
+
         repository.delete(existing);
     }
 }
