@@ -110,6 +110,16 @@ public class ProductService {
         return repository.findAll(pagable).getContent();
     }
 
+    public void updateProductRating(String productId, double avgRating, int totalRatings) {
+        Product product = repository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        product.setAvgRating(avgRating);
+        product.setTotalRatings(totalRatings);
+
+        repository.save(product);
+    }
+
     public void delete(String id) {
         Product existing = findById(id);
 
