@@ -3,6 +3,7 @@ package com.virtualstore.productservice.model;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.validation.constraints.*;
@@ -42,6 +43,12 @@ public class Product {
     @DecimalMin(value = "0.0", message = "Rating must be >= 0")
     @DecimalMax(value = "5.0", message = "Rating must be <= 5")
     private Double rating;
+
+    @Column(name = "avg_rating")
+    private Double avgRating;
+
+    @Column(name = "total_ratings")
+    private Integer totalRatings;
 
     @NotBlank(message = "Description is required")
     private String description;
