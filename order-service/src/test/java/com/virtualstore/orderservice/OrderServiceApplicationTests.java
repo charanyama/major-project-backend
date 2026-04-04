@@ -1,4 +1,4 @@
-package com.vectorstore.order_service;
+package com.virtualstore.orderservice;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
