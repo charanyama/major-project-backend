@@ -24,7 +24,7 @@ public class ProductService {
     @Autowired
     private KafkaProducerService producer;
 
-    public static final String PRODUCT_INTERACTIONS = "product-interactions";
+    public static final String PRODUCT_INTERACTIONS = "interactions";
     public static final String PRODUCT_INDEXING = "product-indexing";
 
     public List<Product> findAll() {
