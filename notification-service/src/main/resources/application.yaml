@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: notification-service
+
+  datasource:
+    url: jdbc:postgresql://ep-rough-tooth-a1n1hdki-pooler.ap-southeast-1.aws.neon.tech:5432/major-project?sslmode=require&channel_binding=require
+    username: neondb_owner
+    password: npg_4Kk0IiANmMtQ
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+      show-sql: true
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: shivaswaroop87@gmail.com
+    password: "bzws lqic nhaw xlcv"
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    mode: HTML
+    encoding: UTF-8
+    cache: false

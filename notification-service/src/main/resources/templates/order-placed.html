@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Order Confirmation</title>
+</head>
+
+<body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin:0; padding:0;">
+
+<div style="max-width:600px; margin:20px auto; background:#ffffff; border-radius:10px; overflow:hidden;">
+
+    <!-- Header -->
+    <div style="background:#4CAF50; color:white; padding:20px; text-align:center;">
+        <h2>Order Confirmed ✅</h2>
+    </div>
+
+    <!-- Body -->
+    <div style="padding:20px;">
+
+        <h3>Hello [[${name}]] 👋</h3>
+
+        <p>Thank you for your order! Your order has been successfully placed.</p>
+
+        <!-- Order Info -->
+        <div style="background:#f9f9f9; padding:15px; border-radius:8px; margin-top:15px;">
+            <p><b>Order ID:</b> [[${orderId}]]</p>
+            <p><b>Order Date:</b> [[${orderDate}]]</p>
+            <p><b>Total Amount:</b> ₹ [[${totalAmount}]]</p>
+        </div>
+
+        <!-- Items Table -->
+        <h4 style="margin-top:20px;">Order Details:</h4>
+
+        <table style="width:100%; border-collapse:collapse;">
+            <thead>
+            <tr style="background:#f0f0f0;">
+                <th style="padding:10px; border:1px solid #ddd;">Product</th>
+                <th style="padding:10px; border:1px solid #ddd;">Qty</th>
+                <th style="padding:10px; border:1px solid #ddd;">Price</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr th:each="item : ${items}">
+                <td style="padding:10px; border:1px solid #ddd;"
+                    th:text="${item.name}"></td>
+
+                <td style="padding:10px; border:1px solid #ddd;"
+                    th:text="${item.quantity}"></td>
+
+                <td style="padding:10px; border:1px solid #ddd;"
+                    th:text="${item.price}"></td>
+            </tr>
+            </tbody>
+        </table>
+
+        <!-- Button -->
+        <div style="text-align:center; margin-top:20px;">
+            <a th:href="${trackingLink}"
+               style="background:#4CAF50; color:white; padding:12px 25px; text-decoration:none; border-radius:5px;">
+                Track Your Order
+            </a>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div style="background:#f0f0f0; text-align:center; padding:15px; font-size:12px;">
+        <p>Thank you for shopping with us ❤️</p>
+        <p>© 2026 Your Company</p>
+    </div>
+
+</div>
+
+</body>
+</html>
