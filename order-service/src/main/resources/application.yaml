@@ -1,14 +1,40 @@
+server:
+  port: 8005
 spring:
   application:
     name: order-service
-  
+
+  jpa:
+    hibernate:
+      ddl-auto: update
   # Database Configuration
   datasource:
     url: jdbc:postgresql://ep-rough-tooth-a1n1hdki-pooler.ap-southeast-1.aws.neon.tech/major-project?sslmode=require&channel_binding=require
     username: neondb_owner
     password: npg_4Kk0IiANmMtQ
     driver-class-name: org.postgresql.Driver
-    hikari:
-      maximum-pool-size: 10
-      minimum-idle: 5
-      connection-timeout: 20000
+    
+
+  kafka:
+    bootstrap-servers: ${AIVEN_SERVICE_URL}
+    properties:
+      "[security.protocol]": SASL_SSL
+      "[sasl.mechanism]": SCRAM-SHA-256
+
+      "[sasl.jaas.config]": >
+        org.apache.kafka.common.security.scram.ScramLoginModule required
+        username="${AIVEN_USERNAME}"
+        password="${AIVEN_PASSWORD}";
+      ssl.truststore.location: src/main/resources/truststore.jks
+      ssl.truststore.password: password
+      ssl.truststore.type: JKS
+
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+    consumer:
+      group-id: event-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
