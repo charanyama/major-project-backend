@@ -30,11 +30,12 @@ public class ProductMapper {
         if (product == null) return null;
 
         return ProductInteractionDto.builder()
-            .interactionId("INTERACTION_" + UUID.randomUUID().toString().substring(0, 10))
+            .interactionId("IA-" + UUID.randomUUID().toString().substring(0, 15))
             .userId(userId)
             .productId(product.getId())
             .timestamp(Instant.now())
             .interactionType(interactionType)
+            .serviceSource("product")
             .build();
     }
 
