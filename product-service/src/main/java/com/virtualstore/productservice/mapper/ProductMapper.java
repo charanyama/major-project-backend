@@ -1,10 +1,14 @@
 package com.virtualstore.productservice.mapper;
 
+import com.virtualstore.common.context.UserContext;
 import com.virtualstore.productservice.dto.ProductDto;
+import com.virtualstore.productservice.dto.ProductInteractionDto;
 import com.virtualstore.productservice.dto.ProductRequest;
-import com.virtualstore.productservice.model.Product;
+import com.virtualstore.productservice.entity.Product;
 
+import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class ProductMapper {
@@ -20,6 +24,18 @@ public class ProductMapper {
                 product.getDescription(),
                 product.getCategory(),
                 product.getPrice());
+    }
+
+    public static ProductInteractionDto toProductInteractionDto(Product product, String interactionType, String userId) {
+        if (product == null) return null;
+
+        return ProductInteractionDto.builder()
+            .interactionId("INTERACTION_" + UUID.randomUUID().toString().substring(0, 10))
+            .userId(userId)
+            .productId(product.getId())
+            .timestamp(Instant.now())
+            .interactionType(interactionType)
+            .build();
     }
 
     public static List<ProductDto> toDtoList(List<Product> products) {
