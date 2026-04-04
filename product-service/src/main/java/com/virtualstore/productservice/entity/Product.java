@@ -1,4 +1,4 @@
-package com.virtualstore.productservice.model;
+package com.virtualstore.productservice.entity;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -58,6 +58,9 @@ public class Product {
 
     @NotBlank(message = "Brand must be specified")
     private String brand;
+
+    @Column(nullable = false, unique = true, updatable = false)
+    private String sku;
 
     private Instant createdAt;
 

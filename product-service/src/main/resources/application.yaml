@@ -1,22 +1,36 @@
-# spring:
-#   application:
-#     name: productservice
+server:
+  port: 4000
 
-#   mongodb:
-#     uri: mongodb+srv://admin:pass1234@ecommerce-cluster-0.el6cazo.mongodb.net/store
-  
-#   kafka:
-#     bootstrap-servers: localhost:9092
-#     producer:
-#       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-#       key-serializer: org.apache.kafka.common.serialization.StringSerializer
-# eureka:
-#   client:
-#     enabled: false
+spring:
+    application:
+        name: "Product Service"
+    kafka:
+        bootstrap-servers: ${AIVEN_SERVICE_URL}
+        properties:
+            "[security.protocol]": SASL_SSL
+            "[sasl.mechanism]": SCRAM-SHA-256
 
-# logging:
-#   level:
-#     org.springframework: INFO
-#     com.virtualstore: DEBUG
-#     org.springframework.data.mongodb.core.MongoTemplate: DEBUG
+            "[sasl.jaas.config]": >
+                org.apache.kafka.common.security.scram.ScramLoginModule required
+                username="avnadmin"
+                password="${AIVEN_PASSWORD}";
+            ssl.truststore.location: src/main/resources/truststore.jks
+            ssl.truststore.password: password
+            ssl.truststore.type: JKS
+
+        producer:
+            key-serializer: org.apache.kafka.common.serialization.StringSerializer
+            value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+        consumer:
+            group-id: recommendation-group
+            auto-offset-reset: earliest
+            key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+            value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+    mongodb:
+        uri: ${MONGODB_URI}
+        database: ${MONGODB_DATABASE}
+
+eureka:
+    client:
+        enabled: false
 
