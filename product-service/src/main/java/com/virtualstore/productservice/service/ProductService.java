@@ -28,7 +28,7 @@ public class ProductService {
     public static final String PRODUCT_INDEXING = "product-indexing";
 
     public List<Product> findAll() {
-        return repository.findAll();
+        return repository.findAll().subList(0, 25);
     }
 
     // Internal use only
@@ -45,6 +45,11 @@ public class ProductService {
         return p;
     }
 
+    public List<String> getAllCategories() {
+
+        return repository.findAllCategories();
+    }
+
     public Product createProduct(Product product) {
         product.setCreatedAtIfNull();
 
@@ -58,7 +63,7 @@ public class ProductService {
 
     public Product patch(String id, Product updatedProduct, String userId) {
         Product existing = this.findById(id);
-        Optional.ofNullable(updatedProduct.getName()).ifPresent(existing::setName);
+        Optional.ofNullable(updatedProduct.getTitle()).ifPresent(existing::setTitle);
         Optional.ofNullable(updatedProduct.getCategory()).ifPresent(existing::setCategory);
         Optional.ofNullable(updatedProduct.getSubcategory()).ifPresent(existing::setSubcategory);
         Optional.ofNullable(updatedProduct.getCategoryTree()).ifPresent(existing::setCategoryTree);
@@ -77,7 +82,7 @@ public class ProductService {
     public Product update(String id, Product updatedProduct, String userId) {
         Product existing = this.findById(id); // throws 404 if not found
 
-        existing.setName(updatedProduct.getName());
+        existing.setTitle(updatedProduct.getTitle());
         existing.setCategory(updatedProduct.getCategory());
         existing.setSubcategory(updatedProduct.getSubcategory());
         existing.setCategoryTree(updatedProduct.getCategoryTree());
@@ -93,7 +98,7 @@ public class ProductService {
         return repository.save(existing);
     }
 
-    public List<Product> search(
+    public Page<Product> search(
             String category,
             Double minPrice,
             Double maxPrice,
@@ -108,18 +113,18 @@ public class ProductService {
         Pageable pagable = PageRequest.of(page, size, sort);
 
         if (category != null && minPrice != null && maxPrice != null) {
-            return repository.findByPriceBetweenAndCategory(category, minPrice, maxPrice, pagable).getContent();
+            return repository.findByPriceBetweenAndCategory(category, minPrice, maxPrice, pagable);
         }
 
         if (category != null) {
-            return repository.findByCategory(category, pagable).getContent();
+            return repository.findByCategory(category, pagable);
         }
 
         if (minPrice != null && maxPrice != null) {
-            return repository.findByPriceBetween(minPrice, maxPrice, pagable).getContent();
+            return repository.findByPriceBetween(minPrice, maxPrice, pagable);
         }
 
-        return repository.findAll(pagable).getContent();
+        return repository.findAll(pagable);
     }
 
     public void updateProductRating(String productId, double avgRating, int totalRatings) {

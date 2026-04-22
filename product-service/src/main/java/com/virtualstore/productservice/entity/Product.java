@@ -1,7 +1,9 @@
 package com.virtualstore.productservice.entity;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
@@ -12,7 +14,7 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.time.Instant;
 
-@Document(collection = "seed_products")
+@Document(collection = "products")
 @Data
 @Builder
 @AllArgsConstructor
@@ -23,7 +25,7 @@ public class Product {
     private String id;
 
     @NotBlank(message = "Product name is required")
-    private String name;
+    private String title;
 
     @NotBlank(message = "Category is required")
     private String category;
@@ -37,11 +39,13 @@ public class Product {
     private BigDecimal price;
 
     @NotBlank(message = "Image URL is required")
+    @Field("img_url")
     private String imgUrl;
 
     @NotNull(message = "Rating is required")
     @DecimalMin(value = "0.0", message = "Rating must be >= 0")
     @DecimalMax(value = "5.0", message = "Rating must be <= 5")
+    @Field("stars")
     private Double rating;
 
     @Column(name = "avg_rating")

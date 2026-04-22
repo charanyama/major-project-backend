@@ -1,21 +1,23 @@
 package com.virtualstore.productservice.dto;
 
 import java.math.BigDecimal;
+
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class ProductDto {
     private String id;
-    private String name;
-    private String description;
+    private String title;
     private String category;
     private BigDecimal price;
-
-    public ProductDto(String id, String name, String description, String category, BigDecimal price) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.category = category;
-        this.price = price;
-    }
-}
+    private String imgUrl;
+    private Double rating;
+}   

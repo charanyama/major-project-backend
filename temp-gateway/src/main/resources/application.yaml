@@ -1,0 +1,111 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: gateway
+
+  cloud:
+    gateway:
+      # Global default filters applied to ALL routes
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+
+      routes:
+        #! User Service 
+        - id: user-service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/users/**
+          filters:
+            - StripPrefix=0
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 100
+                redis-rate-limiter.burstCapacity: 200
+
+        #! Product Service
+        - id: product-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/products/**
+          filters:
+            - StripPrefix=0
+
+        #! Order Service
+        - id: order-service
+          uri: http://localhost:8083
+          predicates:
+            - Path=/api/orders/**
+          filters:
+            - StripPrefix=0
+
+        # #! Auth passthrough 
+        # # /auth/** routes to user-service auth endpoints
+        # - id: auth-service
+        #   uri: http://localhost:8081
+        #   predicates:
+        #     - Path=/auth/**
+        #   filters:
+        #     - StripPrefix=0
+
+      # Global CORS (adjust origins for production)
+      globalcors:
+        cors-configurations:
+          "[/**]":
+            allowedOrigins:
+              - "http://localhost:3000" # React frontend
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - PATCH
+              - OPTIONS
+            allowedHeaders:
+              - "*"
+            allowCredentials: true
+            maxAge: 3600
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Option A: Use JWKS URI (recommended for production)
+          # jwk-set-uri: http://localhost:8081/auth/.well-known/jwks.json
+
+          # Option B: Use symmetric secret (HS256) — set via env var
+          # The JwtUtility class handles symmetric key setup manually.
+          # Leave jwk-set-uri blank when using symmetric secret.
+          issuer-uri: ${JWT_ISSUER_URI:http://localhost:8081}
+
+jwt:
+  secret: ${JWT_SECRET:myVerySecretKeyForEcommerceGatewayHS256Algorithm2024!}
+  algorithm: ${JWT_ALGORITHM:HS256}
+  user-id-claim: ${JWT_USER_ID_CLAIM:sub}
+
+services:
+  product-service:
+    base-url: ${PRODUCT_SERVICE_URL:http://localhost:8082}
+  order-service:
+    base-url: ${ORDER_SERVICE_URL:http://localhost:8083}
+  user-service:
+    base-url: ${USER_SERVICE_URL:http://localhost:8081}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway,metrics
+  endpoint:
+    health:
+      show-details: always
+    gateway:
+      enabled: true
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.security: DEBUG
+    com.ecommerce.gateway: DEBUG
+    reactor.netty: INFO

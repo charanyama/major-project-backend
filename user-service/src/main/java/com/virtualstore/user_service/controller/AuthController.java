@@ -19,10 +19,8 @@ import org.springframework.web.bind.annotation.*;
  * Handles all authentication and account lifecycle endpoints.
  *
  * Public (no JWT required):
- * POST /auth/signup
+ * POST /auth/register
  * POST /auth/login
- * GET /auth/verify-email?token=
- * POST /auth/resend-verification
  * POST /auth/forgot-password
  * POST /auth/reset-password
  *
@@ -42,14 +40,14 @@ public class AuthController {
     // ── Public endpoints ──────────────────────────────────────────────────────
 
     /**
-     * POST /auth/signup
+     * POST /auth/register
      *
-     * Registers a new user. Account is inactive until email is verified.
+     * Registers a new user. Account is active immediately after creation.
      * Body: { firstName, lastName, email, password, role }
      * Role must be one of: USER, SELLER (ADMIN is rejected)
      */
-    @PostMapping("/signup")
-    public ResponseEntity<MessageResponse> signup(
+    @PostMapping("/register")
+    public ResponseEntity<AuthResponse> signup(
             @Valid @RequestBody SignupRequest req) {
 
         return ResponseEntity
@@ -62,41 +60,13 @@ public class AuthController {
      *
      * Authenticates credentials and returns access + refresh tokens.
      * Body: { email, password }
-     * Returns 401 if credentials wrong, 403 if email not verified.
+     * Returns 401 if credentials are wrong.
      */
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(
             @Valid @RequestBody LoginRequest req) {
 
         return ResponseEntity.ok(authService.login(req));
-    }
-
-    /**
-     * GET /auth/verify-email?token={token}
-     *
-     * Activates the account linked to the verification token.
-     * The token is sent to the user's email after signup.
-     */
-    @GetMapping("/verify-email")
-    public ResponseEntity<MessageResponse> verifyEmail(
-            @RequestParam String token) {
-
-        return ResponseEntity.ok(authService.verifyEmail(token));
-    }
-
-    /**
-     * POST /auth/resend-verification
-     *
-     * Re-sends the verification email if the original link expired.
-     * Body: { email }
-     */
-    @PostMapping("/resend-verification")
-    public ResponseEntity<MessageResponse> resendVerification(
-            @Valid @RequestBody ForgotPasswordRequest req) {
-
-        // Reuses ForgotPasswordRequest — both just need an email field
-        return ResponseEntity.ok(
-                authService.resendVerification(req.getEmail()));
     }
 
     /**

@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +20,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/products")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:3000")
 public class ProductController {
 
     @Autowired
@@ -30,13 +32,15 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProductDto> getProductById(
+    public ResponseEntity<Product> getProductById(
             @PathVariable String id,
             @RequestHeader(value = "X-UserId", required = false) String userId) {
         if (userId == null)
             userId = "anonymus";
-        // log.info("Request received from User: {}", userId);
-        return ResponseEntity.ok(ProductMapper.toDto(productService.findById(id, userId)));
+        // log.info("Request received from User: {} with Id: {}", userId, id);
+        System.out.println("\n\n\nRequest of user for product with id: " + id);
+        System.out.println(productService.findById(id, userId));
+        return ResponseEntity.ok(productService.findById(id, userId));
     }
 
     @PostMapping
@@ -75,7 +79,7 @@ public class ProductController {
     }
 
     @GetMapping("/search")
-    public List<ProductDto> serachProducts(
+    public Page<ProductDto> serachProducts(
             @RequestParam(required = false) @Valid String category,
             @RequestParam(required = false) @Valid Double minPrice,
             @RequestParam(required = false) @Valid Double maxPrice,
@@ -83,7 +87,19 @@ public class ProductController {
             @RequestParam(required = false, defaultValue = "ASC") String sortDir,
             @RequestParam(required = false, defaultValue = "0") int page,
             @RequestParam(required = false, defaultValue = "10") int size) {
-        return ProductMapper
-                .toDtoList(productService.search(category, minPrice, maxPrice, sortBy, sortDir, page, size));
+
+        Page<Product> res = productService.search(category, minPrice, maxPrice, sortBy, sortDir, page, size);
+        return res.map(ProductMapper::toDto);
+    }
+
+    @GetMapping("/categories")
+    public List<String> getProductsByCategory() {
+    
+        return productService.getAllCategories();
+    }
+
+    @GetMapping("/wishlist")
+    public List<String> getWishList() {
+        return List.of();
     }
 }

@@ -7,9 +7,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -18,10 +18,8 @@ import org.thymeleaf.context.Context;
  * EmailService
  *
  * Sends HTML emails using Thymeleaf templates.
- * All methods are @Async — email I/O never blocks the HTTP thread.
- *
  * Templates live in src/main/resources/templates/:
- * verify-email.html — sent on signup
+ * verify-email.html — sent on registration / resend verification
  * reset-password.html — sent on forgot-password
  */
 @Slf4j
@@ -39,31 +37,9 @@ public class EmailService {
     private AppProperties appProperties;
     
     /**
-     * Sends an email verification link to the user after signup.
-     * Link format: {frontendUrl}/verify-email?token={token}
-     */
-    @Async("emailTaskExecutor")
-    public void sendVerificationEmail(String toEmail, String firstName, String token) {
-        String verifyUrl = appProperties.getFrontendUrl()
-                + "/verify-email?token=" + token;
-
-        Context ctx = new Context();
-        ctx.setVariable("firstName", firstName);
-        ctx.setVariable("verifyUrl", verifyUrl);
-        ctx.setVariable("expiryHours", 24);
-
-        sendHtmlEmail(
-                toEmail,
-                "Verify your email address",
-                "verify-email",
-                ctx);
-    }
-
-    /**
      * Sends a password-reset link to the user.
      * Link format: {frontendUrl}/reset-password?token={token}
      */
-    @Async("emailTaskExecutor")
     public void sendPasswordResetEmail(String toEmail, String firstName, String token) {
         String resetUrl = appProperties.getFrontendUrl()
                 + "/reset-password?token=" + token;
@@ -77,6 +53,22 @@ public class EmailService {
                 toEmail,
                 "Reset your password",
                 "reset-password",
+                ctx);
+    }
+
+    public void sendVerificationEmail(String toEmail, String fullName, String token) {
+        String verificationUrl = appProperties.getFrontendUrl()
+                + "/verify-email?token=" + token;
+
+        Context ctx = new Context();
+        ctx.setVariable("fullName", fullName);
+        ctx.setVariable("verificationUrl", verificationUrl);
+        ctx.setVariable("expiryHours", Math.max(1, appProperties.getEmailVerificationExpiryMs() / 3_600_000));
+
+        sendHtmlEmail(
+                toEmail,
+                "Verify your email address",
+                "verify-email",
                 ctx);
     }
 
@@ -98,7 +90,7 @@ public class EmailService {
             mailSender.send(message);
             log.info("Email '{}' sent to {}", subject, to);
 
-        } catch (MessagingException | java.io.UnsupportedEncodingException e) {
+        } catch (MailException | MessagingException | java.io.UnsupportedEncodingException e) {
             // Log and swallow — email failure should not crash the request
             log.error("Failed to send email '{}' to {}: {}", subject, to, e.getMessage());
         }

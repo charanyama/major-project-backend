@@ -20,23 +20,27 @@ public class ProductMapper {
 
         return new ProductDto(
                 product.getId(),
-                product.getName(),
-                product.getDescription(),
+                product.getTitle(),
                 product.getCategory(),
-                product.getPrice());
+                product.getPrice(),
+                product.getImgUrl(),
+                product.getRating()
+            );
     }
 
-    public static ProductInteractionDto toProductInteractionDto(Product product, String interactionType, String userId) {
-        if (product == null) return null;
+    public static ProductInteractionDto toProductInteractionDto(Product product, String interactionType,
+            String userId) {
+        if (product == null)
+            return null;
 
         return ProductInteractionDto.builder()
-            .interactionId("IA-" + UUID.randomUUID().toString().substring(0, 15))
-            .userId(userId)
-            .productId(product.getId())
-            .timestamp(Instant.now())
-            .interactionType(interactionType)
-            .serviceSource("product")
-            .build();
+                .interactionId("IA-" + UUID.randomUUID().toString().substring(0, 15))
+                .userId(userId)
+                .productId(product.getId())
+                .timestamp(Instant.now())
+                .interactionType(interactionType)
+                .serviceSource("product")
+                .build();
     }
 
     public static List<ProductDto> toDtoList(List<Product> products) {
@@ -54,7 +58,7 @@ public class ProductMapper {
         }
 
         Product product = new Product();
-        product.setName(request.getName());
+        product.setTitle(request.getTitle());
         product.setDescription(request.getDescription());
         product.setCategory(request.getCategory());
         product.setSubcategory(request.getSubcategory());
@@ -78,8 +82,8 @@ public class ProductMapper {
         if (existing == null || request == null) {
             return existing;
         }
-        if (request.getName() != null) {
-            existing.setName(request.getName());
+        if (request.getTitle() != null) {
+            existing.setTitle(request.getTitle());
         }
         if (request.getDescription() != null) {
             existing.setDescription(request.getDescription());

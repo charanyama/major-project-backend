@@ -12,7 +12,7 @@ import java.time.Instant;
  * UserResponse
  *
  * Safe public projection of the User entity.
- * Never exposes passwordHash, verification tokens, or reset tokens.
+ * Never exposes passwordHash or reset tokens.
  */
 @Getter
 @Builder
@@ -23,7 +23,6 @@ public class UserResponse {
     private String fullName;
     private Role role;
     private Status status;
-    private boolean emailVerified;
     private String phone;
     private boolean phoneVerified;
     private Instant lastLoginAt;
@@ -40,7 +39,6 @@ public class UserResponse {
                 .fullName(user.getFullName())
                 .role(user.getRole())
                 .status(user.getStatus())
-                .emailVerified(user.isEmailVerified())
                 .phone(user.getPhone())
                 .phoneVerified(user.isPhoneVerified())
                 .lastLoginAt(user.getLastLoginAt())

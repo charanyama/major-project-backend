@@ -1,13 +1,19 @@
 spring:
   application:
     name: cart-service
+  datasource:
+    url: ${DATABASE_URI}
+    username: ${DATABASE_USER}
+    password: ${DATABASE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
 
-spring.datasource.url=jdbc:postgresql://<NEON_HOST>/<DB_NAME>?sslmode=require
-spring.datasource.username=<USERNAME>
-spring.datasource.password=<PASSWORD>
+server:
+  port: 8003
 
-spring.jpa.hibernate.ddl-auto=update
-spring.jpa.show-sql=true
-spring.jpa.properties.hibernate.format_sql=true
-
-server.port=8082

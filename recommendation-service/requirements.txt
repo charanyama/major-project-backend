@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+motor
+pydantic
+pydantic-settings
+pinecone
+sentence-transformers
+faker
+python-dotenv

@@ -56,9 +56,8 @@ public class UserPrincipal implements UserDetails {
         return user.isCredentialsNonExpired();
     }
 
-    /** False until the user verifies their email */
     @Override
     public boolean isEnabled() {
-        return user.isEnabled() && !user.isDeleted();
+        return user.isEnabled();
     }
 }

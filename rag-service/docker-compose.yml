@@ -1,0 +1,20 @@
+version: "3.9"
+
+services:
+  rag-service:
+    build: .
+    container_name: rag-service
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - ./docs:/app/docs:ro    # mount your local docs folder (read-only)
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+# No local volume needed — Pinecone is the persistent store

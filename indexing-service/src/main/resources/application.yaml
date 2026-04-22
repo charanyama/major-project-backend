@@ -4,3 +4,7 @@ spring:
     
 external:
     product-api: http://localhost:8080/products
+
+
+server:
+    port: 8005

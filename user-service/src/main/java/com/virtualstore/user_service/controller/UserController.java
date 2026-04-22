@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/users")
+@RequestMapping("/api/users")
 @RequiredArgsConstructor
 public class UserController {
 
@@ -77,12 +77,6 @@ public class UserController {
     @PatchMapping("/{id}/deactivate")
     public ResponseEntity<UserResponse> deactivateUser(@PathVariable String id) {
         return ResponseEntity.ok(userService.deactivateUser(id));
-    }
-
-    // ADMIN or self
-    @PatchMapping("/{id}/verify-email")
-    public ResponseEntity<UserResponse> verifyEmail(@PathVariable String id) {
-        return ResponseEntity.ok(userService.verifyEmail(id));
     }
 
     // ADMIN or self

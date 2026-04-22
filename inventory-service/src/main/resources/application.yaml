@@ -1,13 +1,15 @@
 server:
-  port: 8083
+  port: 8006
 
 spring:
   application:
     name: inventory-service
   datasource:
-    url: jdbc:postgresql://ep-rough-tooth-a1n1hdki-pooler.ap-southeast-1.aws.neon.tech/major-project?sslmode=require&channel_binding=require
-    username: neondb_owner
-    password: npg_4Kk0IiANmMtQ
+    url: ${DATABASE_URI}
+    username: ${DATABASE_USER}
+    password: ${DATABASE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
 
   jpa:
     hibernate:

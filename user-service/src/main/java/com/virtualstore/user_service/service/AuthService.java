@@ -16,6 +16,7 @@ import com.virtualstore.user_service.dto.response.AuthResponse;
 import com.virtualstore.user_service.dto.response.MessageResponse;
 import com.virtualstore.user_service.entity.InvalidatedToken;
 import com.virtualstore.user_service.entity.Role;
+import com.virtualstore.user_service.entity.Status;
 import com.virtualstore.user_service.entity.User;
 import com.virtualstore.user_service.exception.*;
 import com.virtualstore.user_service.repository.InvalidatedTokenRepository;
@@ -31,9 +32,7 @@ import java.util.UUID;
  * All authentication and account lifecycle business logic.
  *
  * Methods:
- * signup() — create account, send verification email
- * verifyEmail() — activate account via token
- * resendVerification() — re-send verification email
+ * signup() — create account
  * login() — authenticate, issue access + refresh tokens
  * refresh() — exchange refresh token for new access token
  * signout() — blocklist the current access token
@@ -52,24 +51,17 @@ public class AuthService {
         private final JwtService jwtService;
         private final AuthenticationManager authenticationManager;
         private final EmailService emailService;
-        private final AppProperties appProperties;
         private final JwtProperties jwtProperties;
+        private final AppProperties appProperties;
 
         // ─────────────────────────────────────────────────────────────────────────
         // Signup
         // ─────────────────────────────────────────────────────────────────────────
 
         /**
-         * Registers a new user.
-         *
-         * Steps:
-         * 1. Check email uniqueness
-         * 2. Block ADMIN self-registration (ADMIN accounts must be created internally)
-         * 3. Hash password with BCrypt
-         * 4. Persist user with enabled=false
-         * 5. Send verification email asynchronously
+         * Registers a new user and activates the account immediately.
          */
-        public MessageResponse signup(SignupRequest req) {
+        public AuthResponse signup(SignupRequest req) {
                 if (userRepository.existsByEmail(req.getEmail())) {
                         throw new EmailAlreadyExistsException(req.getEmail());
                 }
@@ -81,70 +73,25 @@ public class AuthService {
                                         org.springframework.http.HttpStatus.FORBIDDEN);
                 }
 
-                String verificationToken = UUID.randomUUID().toString();
-                Instant verificationExpiry = Instant.now()
-                                .plusMillis(appProperties.getVerificationTokenExpiryMs());
-
                 User user = User.builder()
                                 .email(req.getEmail())
                                 .fullName(req.getFullName())
                                 .passwordHash(passwordEncoder.encode(req.getPassword()))
+                                .phone(req.getPhone())
                                 .role(req.getRole())
-                                .enabled(false)
-                                .verificationToken(verificationToken)
-                                .verificationTokenExpiry(verificationExpiry)
+                                .status(Status.ACTIVE)
+                                .emailVerified(true)
+                                .enabled(true)
                                 .build();
 
                 userRepository.save(user);
 
-                // Fire-and-forget on the email thread pool
-                emailService.sendVerificationEmail(
-                                user.getEmail(), user.getFullName(), verificationToken);
-
                 log.info("User registered: {} as {}", user.getEmail(), user.getRole());
-                return new MessageResponse(
-                                "Registration successful. Please check your email to verify your account.");
-        }
-
-        // ─────────────────────────────────────────────────────────────────────────
-        // Email verification
-        // ─────────────────────────────────────────────────────────────────────────
-
-        public MessageResponse verifyEmail(String token) {
-                User user = userRepository.findByVerificationToken(token)
-                                .orElseThrow(() -> new InvalidTokenException(
-                                                "Verification link is invalid or has already been used."));
-
-                if (Instant.now().isAfter(user.getVerificationTokenExpiry())) {
-                        throw new InvalidTokenException(
-                                        "Verification link has expired. Please request a new one.");
-                }
-
-                user.setEnabled(true);
-                user.setVerificationToken(null);
-                user.setVerificationTokenExpiry(null);
-                userRepository.save(user);
-
-                log.info("Email verified for user: {}", user.getEmail());
-                return new MessageResponse("Email verified successfully. You can now log in.");
-        }
-
-        public MessageResponse resendVerification(String email) {
-                User user = userRepository.findByEmail(email)
-                                .orElseThrow(() -> new UserNotFoundException(email));
-
-                if (user.isEnabled()) {
-                        return new MessageResponse("Your account is already verified.");
-                }
-
-                String newToken = UUID.randomUUID().toString();
-                user.setVerificationToken(newToken);
-                user.setVerificationTokenExpiry(
-                                Instant.now().plusMillis(appProperties.getVerificationTokenExpiryMs()));
-                userRepository.save(user);
-
-                emailService.sendVerificationEmail(user.getEmail(), user.getFullName(), newToken);
-                return new MessageResponse("Verification email resent. Please check your inbox.");
+                return AuthResponse.builder()
+                                .accessToken(jwtService.generateAccessToken(user))
+                                .refreshToken(jwtService.generateRefreshToken(user))
+                                .user(user)
+                                .build();
         }
 
         // ─────────────────────────────────────────────────────────────────────────
@@ -176,11 +123,8 @@ public class AuthService {
                 return AuthResponse.builder()
                                 .accessToken(accessToken)
                                 .refreshToken(refreshToken)
-                                .accessTokenExpiresIn(jwtProperties.getAccessTokenExpiryMs())
-                                .id(user.getId())
-                                .email(user.getEmail())
-                                .fullName(user.getFullName())
-                                .role(user.getRole())
+                                .expiresIn(jwtProperties.getAccessTokenExpiryMs())
+                                .user(user)
                                 .build();
         }
 
@@ -206,7 +150,7 @@ public class AuthService {
                 User user = userRepository.findById(userId)
                                 .orElseThrow(() -> new UserNotFoundException(userId));
 
-                if (!user.isEnabled() || user.isDeleted()) {
+                if (user.isDeleted()) {
                         throw new AppException("Account is inactive.",
                                         org.springframework.http.HttpStatus.FORBIDDEN);
                 }
@@ -216,11 +160,8 @@ public class AuthService {
                 return AuthResponse.builder()
                                 .accessToken(newAccessToken)
                                 .refreshToken(req.getRefreshToken()) // same refresh token
-                                .accessTokenExpiresIn(jwtProperties.getAccessTokenExpiryMs())
-                                .id(user.getId())
-                                .email(user.getEmail())
-                                .fullName(user.getFullName())
-                                .role(user.getRole())
+                                .expiresIn(jwtProperties.getAccessTokenExpiryMs())
+                                .user(user)
                                 .build();
         }
 
@@ -233,8 +174,8 @@ public class AuthService {
          *
          * The token is extracted from the Authorization header (already validated
          * by JwtAuthenticationFilter before this method is called).
-         * MongoDB TTL index auto-removes the blocklist entry once the token
-         * would have expired naturally.
+         * The Postgres table does not enforce a TTL, so a scheduled cleanup
+         * should be added to purge entries after their expiration.
          */
         public MessageResponse signout(String authorizationHeader, String userId) {
                 String token = authorizationHeader.substring(7); // strip "Bearer "
@@ -315,7 +256,6 @@ public class AuthService {
                                 .orElseThrow(() -> new UserNotFoundException(userId));
 
                 user.setDeleted(true);
-                user.setEnabled(false);
                 userRepository.save(user);
 
                 // Also blocklist the current token so it can't be used after deletion

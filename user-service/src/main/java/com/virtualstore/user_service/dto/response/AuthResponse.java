@@ -1,6 +1,6 @@
 package com.virtualstore.user_service.dto.response;
+import com.virtualstore.user_service.entity.User;
 
-import com.virtualstore.user_service.entity.Role;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -14,15 +14,8 @@ import lombok.Getter;
 @Getter
 @Builder
 public class AuthResponse {
-
     private String accessToken;
     private String refreshToken;
-
-    /** Milliseconds until the access token expires */
-    private long accessTokenExpiresIn;
-
-    private String id;
-    private String email;
-    private String fullName;
-    private Role role;
+    private long expiresIn;
+    private User user;
 }

@@ -37,7 +37,6 @@ import java.util.List;
  * enableUser(id) GET /api/v1/users/status/{id}
  * updateUser(id, UserRequest) PUT /api/v1/users/{id}
  * deactivateUser(id) PATCH /api/v1/users/{id}/deactivate
- * verifyEmail(id) PATCH /api/v1/users/{id}/verify-email
  * verifyPhone(id) PATCH /api/v1/users/{id}/verify-phone
  * updateLastLogin(id) PATCH /api/v1/users/{id}/last-login
  * deleteUser(id) DELETE /api/v1/users/{id}
@@ -55,8 +54,7 @@ public class UserService {
     // -------------------------------------------------------------------------
 
     /**
-     * Admin-only: creates a user directly, bypassing the email verification flow.
-     * Account is immediately ACTIVE — admin-created accounts are pre-trusted.
+     * Admin-only: creates a user with an active account.
      */
     public UserResponse createUser(UserRequest req) {
         if (userRepository.existsByEmail(req.getEmail())) {
@@ -73,8 +71,9 @@ public class UserService {
                 .passwordHash(passwordEncoder.encode(req.getPassword()))
                 .role(req.getRole())
                 .phone(req.getPhone())
-                .enabled(true)
+                .status(Status.ACTIVE)
                 .emailVerified(true)
+                .enabled(true)
                 .build();
 
         userRepository.save(user);
@@ -173,25 +172,6 @@ public class UserService {
         user.setEnabled(false);
         userRepository.save(user);
         log.info("User deactivated: {}", id);
-        return UserResponse.from(user);
-    }
-
-    /**
-     * Marks the user's email as verified and promotes status PENDING -> ACTIVE.
-     */
-    public UserResponse verifyEmail(String id) {
-        User user = findActiveUser(id);
-        user.setEmailVerified(true);
-        user.setVerificationToken(null);
-        user.setVerificationTokenExpiry(null);
-
-        if (user.getStatus() == Status.PENDING) {
-            user.setStatus(Status.ACTIVE);
-            user.setEnabled(true);
-        }
-
-        userRepository.save(user);
-        log.info("Email verified for user: {}", id);
         return UserResponse.from(user);
     }
 

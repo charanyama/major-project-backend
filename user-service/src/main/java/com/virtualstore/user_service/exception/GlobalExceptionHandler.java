@@ -45,8 +45,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DisabledException.class)
     public ResponseEntity<Map<String, Object>> handleDisabled(DisabledException ex) {
-        return buildResponse(HttpStatus.FORBIDDEN,
-                "Account is not verified. Please check your email.");
+        return buildResponse(HttpStatus.FORBIDDEN, "Account is disabled.");
     }
 
     @ExceptionHandler(LockedException.class)
@@ -58,7 +57,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleUnexpected(Exception ex) {
         log.error("Unexpected error: {}", ex.getMessage(), ex);
         return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR,
-                "An unexpected error occurred. Please try again later.");
+                ex.getMessage());
     }
 
     private ResponseEntity<Map<String, Object>> buildResponse(HttpStatus status, String message) {

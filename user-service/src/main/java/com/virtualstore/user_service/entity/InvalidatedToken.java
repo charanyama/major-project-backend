@@ -1,33 +1,27 @@
 package com.virtualstore.user_service.entity;
 
+import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
+import java.util.UUID;
 
 /**
  * InvalidatedToken
  *
- * MongoDB document representing a JWT that has been explicitly invalidated
- * (i.e. the user signed out before the token expired naturally).
+ * Tracks blocklisted JWTs so signed-out tokens stay invalid even though JWTs
+ * are otherwise stateless.
  *
- * How it works:
- * 1. User calls POST /auth/signout with their access token.
- * 2. We extract the token's JTI (JWT ID claim) and expiry.
- * 3. We store them here.
- * 4. JwtAuthenticationFilter checks this collection before
- * allowing any request through.
- *
- * TTL Index:
- * MongoDB automatically deletes documents when `expiresAt` passes.
- * This means the blocklist self-cleans — no manual purge needed.
- * 
- * @Indexed(expireAfterSeconds = 0) tells MongoDB to use the document's
- *                             own `expiresAt` field as the TTL boundary.
+ * In MongoDB the TTL index auto-purged these entries; with Postgres the
+ * cleanup must be handled separately (e.g. scheduled job) so the table
+ * doesn't grow indefinitely.
  */
-@Document(collection = "invalidated_tokens")
+@Entity
+@Table(name = "invalidated_tokens", indexes = {
+        @Index(name = "idx_invalidated_tokens_jti", columnList = "jti", unique = true)
+})
+@EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
 @Builder
@@ -36,22 +30,34 @@ import java.time.Instant;
 public class InvalidatedToken {
 
     @Id
+    @Column(name = "id", updatable = false, nullable = false)
     private String id;
 
     /** The JTI (JWT ID) claim from the invalidated token */
-    @Indexed(unique = true)
+    @Column(name = "jti", nullable = false, unique = true)
     private String jti;
 
     /** The userId who signed out */
+    @Column(name = "user_id")
     private String userId;
 
     /**
-     * When this document should be auto-deleted by MongoDB.
-     * Set to the token's own expiry time — once the token would
-     * have expired anyway, the blocklist entry is irrelevant.
+     * When this record should be eligible for cleanup.
+     * No automatic TTL exists; implement a scheduled purge if needed.
      */
-    @Indexed(expireAfter = "0s")
+    @Column(name = "expires_at")
     private Instant expiresAt;
 
+    @Column(name = "invalidated_at")
     private Instant invalidatedAt;
+
+    @PrePersist
+    private void ensureId() {
+        if (id == null) {
+            id = UUID.randomUUID().toString();
+        }
+        if (invalidatedAt == null) {
+            invalidatedAt = Instant.now();
+        }
+    }
 }

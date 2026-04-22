@@ -2,9 +2,11 @@ package com.virtualstore.user_service.config;
 
 import com.virtualstore.user_service.filter.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -19,6 +21,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 /**
  * SecurityConfig
@@ -26,10 +31,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
  * Configures the user-service's own security filter chain.
  *
  * Public endpoints (no JWT needed):
- * POST /auth/signup
+ * POST /auth/register
  * POST /auth/login
- * GET /auth/verify-email
- * POST /auth/resend-verification
  * POST /auth/forgot-password
  * POST /auth/reset-password
  * GET /actuator/health
@@ -54,23 +57,12 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // ── Public auth endpoints ─────────────────────────────────
-                        .requestMatchers(HttpMethod.POST,
-                                "/auth/signup",
-                                "/auth/login",
-                                "/auth/resend-verification",
-                                "/auth/forgot-password",
-                                "/auth/reset-password")
-                        .permitAll()
-                        .requestMatchers(HttpMethod.GET,
-                                "/auth/verify-email",
-                                "/actuator/health")
-                        .permitAll()
-                        // ── Everything else requires a valid JWT ──────────────────
-                        .anyRequest().authenticated())
+                        .anyRequest().permitAll()
+                    )
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
@@ -96,5 +88,20 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(
             AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        configuration.setAllowCredentials(true);
+        configuration.setAllowedOrigins(List.of("http://localhost:3000"));
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+
+        return source;
     }
 }

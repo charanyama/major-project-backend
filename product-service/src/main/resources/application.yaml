@@ -1,11 +1,12 @@
 server:
-  port: 4000
+  port: 8001
 
 spring:
     application:
         name: "Product Service"
     kafka:
         bootstrap-servers: ${AIVEN_SERVICE_URL}
+        # bootstrap-servers: http://localhost:9092
         properties:
             "[security.protocol]": SASL_SSL
             "[sasl.mechanism]": SCRAM-SHA-256

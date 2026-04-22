@@ -3,6 +3,7 @@ package com.virtualstore.user_service.dto.request;
 import com.virtualstore.user_service.entity.Role;
 import jakarta.validation.constraints.*;
 import lombok.Data;
+import lombok.Builder.Default;
 
 @Data
 public class SignupRequest {
@@ -19,6 +20,8 @@ public class SignupRequest {
     @Size(min = 8, message = "Password must be at least 8 characters")
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]+$", message = "Password must contain uppercase, lowercase, digit, and special character")
     private String password;
+
+    private String phone;
 
     /**
      * The role this user is signing up as.

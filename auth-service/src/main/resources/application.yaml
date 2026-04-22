@@ -1,0 +1,70 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: user-service
+
+  # ── MongoDB ──────────────────────────────────────────────────────────────
+  data:
+    mongodb:
+      uri: ${MONGO_URI:mongodb://localhost:27017/ecommerce_users}
+      auto-index-creation: true # Creates @Indexed fields automatically
+
+  # ── Mail (SMTP) ───────────────────────────────────────────────────────────
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:your-email@gmail.com}
+    password: ${MAIL_PASSWORD:your-app-password}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+        debug: false
+
+  # ── Thymeleaf (email templates only — not web pages) ─────────────────────
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    mode: HTML
+
+# ── JWT ───────────────────────────────────────────────────────────────────────
+jwt:
+  secret: ${JWT_SECRET:myVerySecretKeyForEcommerceGatewayHS256Algorithm2024!}
+  # Access token lifetime (15 minutes recommended)
+  access-token-expiry-ms: ${JWT_ACCESS_EXPIRY_MS:900000}
+  # Refresh token lifetime (7 days)
+  refresh-token-expiry-ms: ${JWT_REFRESH_EXPIRY_MS:604800000}
+
+# ── App-level config ──────────────────────────────────────────────────────────
+app:
+  # Frontend URL — used in verification email links
+  frontend-url: ${FRONTEND_URL:http://localhost:3000}
+  # Email verification token TTL (24 hours in milliseconds)
+  verification-token-expiry-ms: ${VERIFICATION_TOKEN_EXPIRY_MS:86400000}
+  # Password reset token TTL (1 hour)
+  password-reset-expiry-ms: ${PASSWORD_RESET_EXPIRY_MS:3600000}
+  mail:
+    from: ${MAIL_FROM:noreply@ecommerce.com}
+    from-name: ${MAIL_FROM_NAME:Ecommerce Platform}
+
+# ── Actuator ──────────────────────────────────────────────────────────────────
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
+# ── Logging ───────────────────────────────────────────────────────────────────
+logging:
+  level:
+    com.ecommerce.userservice: DEBUG
+    org.springframework.security: INFO
+    org.springframework.data.mongodb: INFO

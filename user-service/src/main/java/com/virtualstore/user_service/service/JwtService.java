@@ -9,8 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.Base64;
 import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
@@ -26,7 +26,7 @@ import java.util.UUID;
  * Refresh token — long-lived (7 days), used only to get a new access token
  *
  * Claims included in access tokens:
- * sub — userId (the user's MongoDB _id)
+ * sub — userId (the user's identifier)
  * email — user's email
  * roles — list of role strings e.g. ["ROLE_USER"]
  * jti — unique token ID (UUID), used for blocklist lookup on signout
@@ -151,7 +151,7 @@ public class JwtService {
     }
 
     private SecretKey getSigningKey() {
-        byte[] keyBytes = jwtProperties.getSecret().getBytes(StandardCharsets.UTF_8);
+        byte[] keyBytes = Base64.getDecoder().decode(jwtProperties.getSecret());
         return Keys.hmacShaKeyFor(keyBytes);
     }
 }
